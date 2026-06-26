@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased;
+  }
+}
+
+/* Custom Scrollbar for Variant List */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(243, 244, 246, 0.5); /* gray-100 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(209, 213, 219, 0.8); /* gray-300 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 1); /* gray-400 */
+}
+
+/* PREMIUM NAVY & BLUE THEME OVERRIDES */
+body {
+  background-color: #0b0f19 !important; /* Deep Navy Black */
+  color: #f3f4f6 !important; /* Light gray text */
+}
+
+/* Background overrides */
+.bg-\[\#0F172A\], .bg-\[\#0B0F19\] {
+  background-color: #0b0f19 !important;
+}
+
+.bg-\[\#1E293B\], .bg-slate-900 {
+  background-color: #1e293b !important; /* Navy Blue Card */
+  border-color: #334155 !important; /* Slate Blue Border */
+}
+
+.bg-\[\#151D30\], .bg-slate-800, .bg-slate-850 {
+  background-color: #151d30 !important; /* Dark Navy Sidebar / Table Header */
+  border-color: #334155 !important;
+}
+
+.bg-slate-950\/60 {
+  background-color: rgba(3, 7, 18, 0.75) !important; /* Dark overlay backdrop */
+}
+
+/* Text overrides */
+.text-slate-100, .text-white, h1, h2, h3, h4, h5, h6 {
+  color: #ffffff !important; /* Crisp White */
+}
+
+.text-slate-250, .text-slate-200, .text-slate-300 {
+  color: #e5e7eb !important; /* Light gray */
+}
+
+.text-slate-400 {
+  color: #9ca3af !important; /* Muted gray */
+}
+
+/* Borders overrides */
+.border-slate-800, .border-slate-750, .border-slate-700, .border-slate-850 {
+  border-color: #334155 !important; /* Slate Blue */
+}
+
+/* Form controls & inputs */
+input, textarea, select {
+  background-color: #0f172a !important; /* Deep Navy */
+  color: #ffffff !important;
+  border-color: #334155 !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+/* Sidebar navigation active state */
+.bg-gradient-to-r.from-yellow-500\/10.to-amber-500\/5 {
+  background: rgba(59, 130, 246, 0.15) !important; /* Blue glow */
+  color: #3b82f6 !important; /* Blue text */
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Hover effects for buttons/cards */
+.hover\:bg-slate-800:hover {
+  background-color: #1e293b !important;
+}
+
+.hover\:text-slate-200:hover {
+  color: #ffffff !important;
+}
+
+
