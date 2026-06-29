@@ -2273,7 +2273,7 @@ function SubcategoriesDashboard({ products, setProducts, collections, mainHandle
   // Products assigned to the currently selected subcategory
   const assignedProducts = selectedSub ? products.filter(p => {
       const subName = selectedSub.title.split("-").pop().trim();
-      return p.collections.edges.some(e => e.node.id === selectedSub.id) || p.tags.includes(`Sub: ${subName}`);
+      return p.tags.some(t => t.toLowerCase() === `sub: ${subName.toLowerCase()}`);
     }) : [];
 
   // Products in parent collection that are NOT assigned to this subcategory (for the add popup)
@@ -2609,7 +2609,7 @@ function SubcategoriesDashboard({ products, setProducts, collections, mainHandle
                         >
                           <span>• {subName}</span>
                           <span className="text-[10px] text-slate-500 group-hover:text-slate-300 font-bold">
-                            {products.filter(p => p.collections.edges.some(e => e.node.id === sub.id) || p.tags.includes(`Sub: ${subName}`)).length}
+                            {products.filter(p => p.tags.some(t => t.toLowerCase() === `sub: ${subName.toLowerCase()}`)).length}
                           </span>
                         </button>
                       );
@@ -2842,10 +2842,10 @@ function SubcategoriesDashboard({ products, setProducts, collections, mainHandle
             <div className="flex-1 overflow-y-auto p-5 bg-[#0B0F19]/40 space-y-3">
               {assignableProducts.map(p => {
                 const subName = selectedSub.title.split("-").pop().trim();
-                const isAssigned = p.collections.edges.some(e => e.node.id === selectedSub.id) || p.tags.includes(`Sub: ${subName}`);
+                const isAssigned = p.tags.some(t => t.toLowerCase() === `sub: ${subName.toLowerCase()}`);
                 const imgUrl = p.images.edges[0]?.node.url;
                 const descSnippet = htmlToText(p.descriptionHtml).substring(0, 100);
-                const otherSubs = p.tags.filter(t => t.startsWith('Sub: ') && t !== `Sub: ${subName}`).map(t => t.replace('Sub: ', ''));
+                const otherSubs = p.tags.filter(t => t.startsWith('Sub: ') && t.toLowerCase() !== `sub: ${subName.toLowerCase()}`).map(t => t.replace('Sub: ', ''));
 
                 return (
                   <div
@@ -2915,7 +2915,7 @@ function SubcategoriesDashboard({ products, setProducts, collections, mainHandle
       {/* READ-ONLY DETAIL PREVIEW MODAL */}
       {previewProduct && (() => {
         const previewSubName = selectedSub ? selectedSub.title.split("-").pop().trim() : '';
-        const otherSubs = previewProduct.tags.filter(t => t.startsWith('Sub: ') && t !== `Sub: ${previewSubName}`).map(t => t.replace('Sub: ', ''));
+        const otherSubs = previewProduct.tags.filter(t => t.startsWith('Sub: ') && t.toLowerCase() !== `sub: ${previewSubName.toLowerCase()}`).map(t => t.replace('Sub: ', ''));
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 text-slate-100 font-sans">
             <div className="bg-[#1E293B] border border-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
@@ -2986,7 +2986,7 @@ function SubcategoriesDashboard({ products, setProducts, collections, mainHandle
                 {/* Add/Remove Subcategory button if active */}
                 {selectedSub && (() => {
                   const subName = selectedSub.title.split("-").pop().trim();
-                  const isAssigned = previewProduct.collections.edges.some(e => e.node.id === selectedSub.id) || previewProduct.tags.includes(`Sub: ${subName}`);
+                  const isAssigned = previewProduct.tags.some(t => t.toLowerCase() === `sub: ${subName.toLowerCase()}`);
                   return (
                     <button
                       onClick={async () => {
