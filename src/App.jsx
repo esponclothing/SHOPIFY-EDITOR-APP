@@ -545,6 +545,7 @@ export default function App() {
               products={products}
               setProducts={setProducts}
               collections={collections}
+              setCollections={setCollections}
               mainHandles={mainHandles}
               mainThemeId={mainThemeId}
               onRefresh={() => {
@@ -2059,7 +2060,7 @@ Do not wrap the JSON in markdown code blocks. Just output raw JSON.`;
 
 
 
-function SubcategoriesDashboard({ products, setProducts, collections, mainHandles, mainThemeId, onRefresh }) {
+function SubcategoriesDashboard({ products, setProducts, collections, setCollections, mainHandles, mainThemeId, onRefresh }) {
   const [selectedParentId, setSelectedParentId] = useState('');
   const [expandedParents, setExpandedParents] = useState(new Set());
   const [selectedSub, setSelectedSub] = useState(null);
@@ -2371,6 +2372,10 @@ function SubcategoriesDashboard({ products, setProducts, collections, mainHandle
         }
       }
 
+      if (setCollections) {
+        setCollections(prev => [...prev.filter(c => c.id !== newCol.id), newCol]);
+      }
+
       setNewSubName('');
       onRefresh();
       // Auto select the new sub
@@ -2426,6 +2431,10 @@ function SubcategoriesDashboard({ products, setProducts, collections, mainHandle
           await axios.post('/api/shopify/graphql.json', { query, variables });
           setMetafieldData(newData);
         }
+      }
+
+      if (setCollections) {
+        setCollections(prev => prev.filter(c => c.id !== subId));
       }
 
       setSelectedSub(null);
