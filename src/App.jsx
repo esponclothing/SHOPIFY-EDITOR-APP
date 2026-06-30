@@ -4982,7 +4982,7 @@ function OffersDashboard({
                 className="bg-slate-800 border border-slate-700 text-xs text-white rounded-xl px-3 py-2 outline-none font-semibold focus:ring-2 focus:ring-yellow-500/50"
               >
                 <option value="templates/product.json">Regular Product Page (product.json)</option>
-                <option value="templates/product.combo.json">Combo Product Page (product.combo.json)</option>
+
               </select>
             </div>
           </div>
