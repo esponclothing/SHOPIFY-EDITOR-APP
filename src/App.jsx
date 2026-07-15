@@ -59,6 +59,7 @@ export default function App() {
 
   // The product currently being edited in the modal
   const [editingProduct, setEditingProduct] = useState(null);
+  const [stockUpdatingId, setStockUpdatingId] = useState(null);
 
   // Define main collections (parent collections) to avoid hyphen matching bugs
   const mainHandles = ['t-shirts', 'trackpants', 'swimwear', 'shorts', 'joggers', 'accessories', 'frontpage', 'avada-best-sellers', 'cockroach-special'];
@@ -527,7 +528,23 @@ export default function App() {
                           </div>
                         </div>
                       </div>
-                      <div className="px-5 pb-5 mt-auto">
+                      <div className="px-5 pb-5 mt-auto flex flex-col gap-2">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleQuickStockUpdate(product, true); }}
+                            disabled={stockUpdatingId === product.id}
+                            className="flex-1 flex items-center justify-center gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 px-2 py-2 rounded-xl text-[10px] font-bold transition-all disabled:opacity-50"
+                          >
+                            {stockUpdatingId === product.id ? '...' : <><PackageCheck className="w-3.5 h-3.5" /> In Stock (100)</>}
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleQuickStockUpdate(product, false); }}
+                            disabled={stockUpdatingId === product.id}
+                            className="flex-1 flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 px-2 py-2 rounded-xl text-[10px] font-bold transition-all disabled:opacity-50"
+                          >
+                            {stockUpdatingId === product.id ? '...' : <><X className="w-3.5 h-3.5" /> Out of Stock</>}
+                          </button>
+                        </div>
                         <button
                           onClick={() => setEditingProduct(product)}
                           className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm"
@@ -1200,6 +1217,75 @@ function ProductEditorModal({ product, products, onClose, collections, mainHandl
   const availableSubcategories = collections.filter(c =>
     assignedParentCollections.some(parent => c.handle && c.handle.startsWith(`${parent.handle}-`))
   );
+
+  const handleQuickStockUpdate = async (product, isInStock) => {
+    setStockUpdatingId(product.id);
+    try {
+      const targetQty = isInStock ? 100 : 0;
+      
+      // 1. Update Inventory Policy to DENY (to prevent selling if 0, or overselling if 100)
+      const variantsInput = product.variants.edges.map(v => ({
+        id: v.node.id,
+        inventoryPolicy: "DENY"
+      }));
+      
+      const policyMutation = `
+        mutation productVariantsBulkUpdate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+          productVariantsBulkUpdate(productId: $productId, variants: $variants) {
+            userErrors { message }
+          }
+        }
+      `;
+      await axios.post('/api/shopify/graphql.json', {
+        query: policyMutation,
+        variables: { productId: product.id, variants: variantsInput }
+      });
+
+      // 2. Set Quantities
+      const quantities = [];
+      for (const variantEdge of product.variants.edges) {
+        const invItem = variantEdge.node.inventoryItem;
+        if (!invItem) continue;
+        
+        let locationId = invItem.inventoryLevels?.edges[0]?.node?.location?.id;
+        if (!locationId && locations.length > 0) {
+          locationId = locations[0].id;
+        }
+        
+        if (locationId) {
+          quantities.push({
+            inventoryItemId: invItem.id,
+            locationId: locationId,
+            quantity: targetQty
+          });
+        }
+      }
+
+      if (quantities.length > 0) {
+        const inventoryMutation = `
+          mutation inventorySetQuantities($input: InventorySetQuantitiesInput!) {
+            inventorySetQuantities(input: $input) { userErrors { message } }
+          }
+        `;
+        const invInput = {
+          name: "available",
+          reason: "correction",
+          ignoreCompareQuantity: true,
+          quantities
+        };
+        await axios.post('/api/shopify/graphql.json', { 
+          query: inventoryMutation, 
+          variables: { input: invInput } 
+        });
+      }
+
+      await fetchInitialData();
+    } catch (e) {
+      alert("Error updating stock: " + e.message);
+    } finally {
+      setStockUpdatingId(null);
+    }
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
